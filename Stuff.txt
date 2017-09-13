@@ -1,4 +1,4 @@
-dtls har integrity, confidentiality, replay, forward securuity, udp
+﻿dtls har integrity, confidentiality, replay, forward securuity, udp
 men om vi måste avbryta överföringen?
 
 en implementation med dtls och krypterade "paket" skulle nog lösa allt utom just ev mellanlagring
@@ -9,3 +9,5 @@ och det måste finnas ett nonce eller liknande för att undvika replay
 nonce kan uppnås via nya värden på p och g för varje session
 
 https://github.com/bcgit/bc-java/blob/master/core/src/test/java/org/bouncycastle/crypto/tls/test/DTLSServerTest.java
+
+http://www.java2s.com/Code/Java/Network-Protocol/UseDatagramSockettosendoutandreceiveDatagramPacket.htm
