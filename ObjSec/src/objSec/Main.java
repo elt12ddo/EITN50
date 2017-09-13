@@ -13,7 +13,7 @@ import org.bouncycastle.crypto.params.DHParameters;
 public class Main {
 
 	public static void main(String[] args) {
-		
+		/*
 		DHKeyPairGenerator gen = new DHKeyPairGenerator();
 		BigInteger p = BigInteger.probablePrime(4096, new Random());
 		BigInteger g = BigInteger.probablePrime(4096, new Random());
@@ -25,6 +25,7 @@ public class Main {
 		System.out.println(keyPair.toString());
 		
 		System.out.println("Hello World!");
+		*/
 
 	}
 
