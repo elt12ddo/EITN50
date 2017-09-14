@@ -13,19 +13,21 @@ import org.bouncycastle.crypto.params.DHParameters;
 public class Main {
 
 	public static void main(String[] args) {
-		/*
+		
 		DHKeyPairGenerator gen = new DHKeyPairGenerator();
-		BigInteger p = BigInteger.probablePrime(4096, new Random());
-		BigInteger g = BigInteger.probablePrime(4096, new Random());
+		BigInteger p = BigInteger.probablePrime(2048, new Random());
+		BigInteger g = BigInteger.probablePrime(2048, new Random());
+		System.out.println(p);
+		System.out.println(g);
 		DHParameters DHparams = new DHParameters(p,g);
 		DHKeyGenerationParameters params = new DHKeyGenerationParameters(new SecureRandom(), DHparams);
 		gen.init(params);
 		AsymmetricCipherKeyPair keyPair = gen.generateKeyPair();
 		
-		System.out.println(keyPair.toString());
+		//System.out.println("key: " + keyPair.getPublic());
 		
 		System.out.println("Hello World!");
-		*/
+		
 
 	}
 
