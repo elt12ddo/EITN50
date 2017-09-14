@@ -11,15 +11,12 @@ import java.net.DatagramPacket;
 public class Client {
 
 	public static void main(String[] args) throws Exception {
-		int port = 6789;
+		int port = 6789; //Port the server listens to 
 		DatagramSocket socket = new DatagramSocket(9877);
 		byte[] buffer = new byte[1024];
 		DatagramPacket packet = new DatagramPacket(buffer,buffer.length);
 		InetAddress host = InetAddress.getByName("localhost");
 		
-		String s = "Some string that is sent over the internet!";
-		
-		//DatagramPacket sendpacket = new DatagramPacket(s.getBytes(),s.length(),host,port);
 		BigInteger g = BigInteger.probablePrime(1024, new Random());
 		DatagramPacket sendPacket = new DatagramPacket(g.toByteArray(),g.toByteArray().length,host,port);
 		socket.send(sendPacket);
