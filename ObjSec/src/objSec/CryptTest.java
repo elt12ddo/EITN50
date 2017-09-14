@@ -10,6 +10,7 @@ import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.security.Security;
 
+import javax.crypto.AEADBadTagException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -77,18 +78,21 @@ public class CryptTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		//encryptedData[0]=encryptedData[1];
 		byte[] outData = null;
 		try {
 			outData = out.doFinal(encryptedData);
 		} catch (IllegalBlockSizeException e) {
 			e.printStackTrace();
 		} catch (BadPaddingException e) {
+			System.out.println("Someone have tampered with the data during transfer");
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
-		
+		if(outData != null && encryptedData != null){
 		System.out.println(new String(encryptedData,0,encryptedData.length));
 		System.out.println(new String(outData,0,outData.length));
+		}
 		
 	}
 }
