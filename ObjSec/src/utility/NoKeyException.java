@@ -1,4 +1,4 @@
-package objSec;
+package utility;
 
 public class NoKeyException extends Exception {
 

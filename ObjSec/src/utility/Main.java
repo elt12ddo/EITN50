@@ -1,4 +1,4 @@
-package objSec;
+package utility;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
