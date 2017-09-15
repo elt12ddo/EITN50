@@ -89,6 +89,7 @@ public class Server {
 		byte[] allreceived;
 		byte[] allsent;
 		byte[] buffer = new byte[1024];
+		byte[] temp;
 		DatagramPacket packet = new DatagramPacket(buffer,1024);
 		//Accept client hello with prime g
 		socket.receive(packet);
@@ -98,9 +99,9 @@ public class Server {
 			g = new BigInteger(Arrays.copyOfRange(packet.getData(), 5, packet.getLength()));
 			
 			//Send server hello with prime p
-			buffer = Utility.concatByte(flag.getBytes(), p.toByteArray());
-			allsent = buffer; 
-			DatagramPacket sendPacket = new DatagramPacket(buffer, buffer.length);
+			temp = Utility.concatByte(flag.getBytes(), p.toByteArray());
+			allsent = temp; 
+			DatagramPacket sendPacket = new DatagramPacket(temp, temp.length);
 			socket.send(sendPacket);
 			
 			//Accept initial DH packet from client
@@ -126,9 +127,9 @@ public class Server {
 				
 				
 				//send initial DH packet from server
-				buffer = Utility.concatByte(flag.getBytes(), msg.toByteArray());
-				allsent = Utility.concatByte(allsent, buffer); 
-				sendPacket = new DatagramPacket(buffer, buffer.length);
+				temp = Utility.concatByte(flag.getBytes(), msg.toByteArray());
+				allsent = Utility.concatByte(allsent, temp); 
+				sendPacket = new DatagramPacket(temp, temp.length);
 				socket.send(sendPacket);
 				
 				//Accept clients public y
@@ -146,9 +147,9 @@ public class Server {
 					//and set key in crypt
 					
 					//send server public y
-					buffer = Utility.concatByte(flag.getBytes(), publParams.getY().toByteArray());
-					allsent = Utility.concatByte(allsent, buffer);
-					sendPacket = new DatagramPacket(buffer,buffer.length);
+					temp = Utility.concatByte(flag.getBytes(), publParams.getY().toByteArray());
+					allsent = Utility.concatByte(allsent, temp);
+					sendPacket = new DatagramPacket(temp,temp.length);
 					socket.send(sendPacket);
 					
 					//accept clients final (handshake that is) message i.e the all previous messages encrypted with the shared key + a nonce
@@ -165,8 +166,8 @@ public class Server {
 							//send servers final (handshake) message
 							byte[] m = Utility.concatByte(allreceived, nonce);
 							m = crypt.encrypt(m);//TODO handle null?
-							buffer = m;
-							sendPacket = new DatagramPacket(buffer, buffer.length);
+							temp = m;
+							sendPacket = new DatagramPacket(temp, temp.length);
 							socket.send(sendPacket);
 							
 							//All good on the server proceed to data transfer
