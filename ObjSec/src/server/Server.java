@@ -11,8 +11,8 @@ import java.util.Random;
 
 import org.bouncycastle.util.Arrays;
 
-import objSec.Crypto;
-import objSec.Utility;
+import utility.Crypto;
+import utility.Utility;
 
 public class Server {
 	private InetAddress host;
