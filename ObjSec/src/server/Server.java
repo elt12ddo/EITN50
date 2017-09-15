@@ -7,9 +7,17 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.security.SecureRandom;
 import java.util.Random;
+import java.util.Arrays;
 
-import org.bouncycastle.util.Arrays;
+import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
+import org.bouncycastle.crypto.agreement.DHAgreement;
+import org.bouncycastle.crypto.generators.DHKeyPairGenerator;
+import org.bouncycastle.crypto.params.DHKeyGenerationParameters;
+import org.bouncycastle.crypto.params.DHParameters;
+import org.bouncycastle.crypto.params.DHPrivateKeyParameters;
+import org.bouncycastle.crypto.params.DHPublicKeyParameters;
 
 import utility.Crypto;
 import utility.Utility;
@@ -21,6 +29,7 @@ public class Server {
 	private BigInteger p;
 	private BigInteger g;
 	private Crypto crypt;
+	private BigInteger key;
 
 	public static void main(String[] args) throws Exception{
 		new Server().doSetup();
@@ -101,12 +110,79 @@ public class Server {
 			if(flag.equals("initDH")){
 				BigInteger initmsg = new BigInteger(Arrays.copyOfRange(packet.getData(), 6, packet.getLength()));
 				
+				//calc DH stuff
+				DHKeyPairGenerator gen = new DHKeyPairGenerator();
+				DHParameters DHparams = new DHParameters(p,g);
+				DHKeyGenerationParameters params = new DHKeyGenerationParameters(new SecureRandom(), DHparams);
+				gen.init(params);
+				AsymmetricCipherKeyPair keyPair = gen.generateKeyPair();
+				
+				DHPublicKeyParameters publParams = (DHPublicKeyParameters)keyPair.getPublic();
+				DHPrivateKeyParameters privParams = (DHPrivateKeyParameters)keyPair.getPrivate();
+				
+				DHAgreement dha = new DHAgreement();
+				dha.init(privParams);
+				BigInteger msg = dha.calculateMessage();
 				
 				
+				//send initial DH packet from server
+				buffer = Utility.concatByte(flag.getBytes(), msg.toByteArray());
+				allsent = Utility.concatByte(allsent, buffer); 
+				sendPacket = new DatagramPacket(buffer, buffer.length);
+				socket.send(sendPacket);
 				
-				
-				
-				
+				//Accept clients public y
+				socket.receive(packet);
+				allreceived = Utility.concatByte(allreceived, packet.getData());
+				flag = new String(packet.getData(),0,6);
+				if(flag.equals("pubKey")){
+					BigInteger clientPubY = new BigInteger(Arrays.copyOfRange(packet.getData(), 6, packet.getLength()));
+					
+					//calc the shared key 
+					DHPublicKeyParameters clientPublParams = new DHPublicKeyParameters(clientPubY,DHparams);
+					key = dha.calculateAgreement(clientPublParams, initmsg);
+					//TODO
+					//Fix key length
+					//and set key in crypt
+					
+					//send server public y
+					buffer = Utility.concatByte(flag.getBytes(), publParams.getY().toByteArray());
+					allsent = Utility.concatByte(allsent, buffer);
+					sendPacket = new DatagramPacket(buffer,buffer.length);
+					socket.send(sendPacket);
+					
+					//accept clients final (handshake that is) message i.e the all previous messages encrypted with the shared key + a nonce
+					socket.receive(packet);
+					allreceived = Utility.concatByte(allreceived, packet.getData());
+					
+					byte[] finalMsg = crypt.decrypt(packet.getData());
+					if(finalMsg != null){
+						byte[] messages = Arrays.copyOfRange(finalMsg, 0, finalMsg.length - 8);
+						
+						if(Arrays.equals(allsent, messages)){
+							byte[] nonce = Arrays.copyOfRange(finalMsg, finalMsg.length - 8, finalMsg.length);
+							
+							//send servers final (handshake) message
+							byte[] m = Utility.concatByte(allreceived, nonce);
+							m = crypt.encrypt(m);//TODO handle null?
+							buffer = m;
+							sendPacket = new DatagramPacket(buffer, buffer.length);
+							socket.send(sendPacket);
+							
+							//All good on the server proceed to data transfer
+							doComunication();
+							
+						}else{
+							return;
+						}
+						
+					}else{
+						return;
+					}
+					
+				}else{
+					return;
+				}
 				
 			}else{
 				return;
@@ -115,9 +191,7 @@ public class Server {
 		}else{
 			return;
 		}	
-		
-		//om allt ok, do com
-		doComunication();
+
 		return;
 	}
 	

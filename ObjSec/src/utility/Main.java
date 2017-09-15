@@ -12,6 +12,8 @@ import org.bouncycastle.crypto.generators.DHKeyPairGenerator;
 //import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.params.DHKeyGenerationParameters;
 import org.bouncycastle.crypto.params.DHParameters;
+import org.bouncycastle.crypto.params.DHPrivateKeyParameters;
+import org.bouncycastle.crypto.params.DHPublicKeyParameters;
 
 public class Main {
 
@@ -26,11 +28,21 @@ public class Main {
 		DHKeyGenerationParameters params = new DHKeyGenerationParameters(new SecureRandom(), DHparams);
 		gen.init(params);
 		AsymmetricCipherKeyPair keyPair = gen.generateKeyPair();
-		
+		/*
 		DHAgreement dha = new DHAgreement();
 		dha.init(keyPair.getPrivate());
 		BigInteger msg = dha.calculateMessage();
+		*/
 		
+		DHPublicKeyParameters publParams = (DHPublicKeyParameters)keyPair.getPublic();
+		DHPrivateKeyParameters privParams = (DHPrivateKeyParameters)keyPair.getPrivate();
+		DHAgreement dha = new DHAgreement();
+		dha.init(privParams);
+		BigInteger msg = dha.calculateMessage();
+		
+		
+		BigInteger y = publParams.getY();
+		DHPublicKeyParameters gtr = new DHPublicKeyParameters(y,DHparams);
 		
 		
 		//System.out.println("key: " + keyPair.getPublic());
