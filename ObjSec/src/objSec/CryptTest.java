@@ -9,8 +9,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.security.Security;
+import java.util.Arrays;
 
-import javax.crypto.AEADBadTagException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -21,6 +21,9 @@ import javax.crypto.spec.SecretKeySpec;
 public class CryptTest {
 
 	public static void main(String[] args) {
+		String byteTestString = "ABCDEFGHIJKLMNOPQRST";
+		byteTest(byteTestString.getBytes());
+		
 		System.out.println("Hello");
 		Security.addProvider(new BouncyCastleProvider());
 		
@@ -45,6 +48,14 @@ public class CryptTest {
 		}
 		
 	}
+	private static void byteTest(byte[] inData) {
+		System.out.println(Arrays.toString(inData));
+		byte[] iv = Arrays.copyOfRange(inData, inData.length - 16, inData.length);
+		System.out.println(Arrays.toString(iv));
+		inData = Arrays.copyOf(inData, inData.length - 16);
+		System.out.println(Arrays.toString(inData));
+		System.out.println(Arrays.toString(Utility.concatByte(inData,iv)));
+	}
 	private static void encrypt (byte[] keyBytes, byte[] inData) throws NoSuchAlgorithmException, NoSuchProviderException, NoSuchPaddingException {
 		Key						key;
 		Cipher					in, out;
@@ -57,6 +68,7 @@ public class CryptTest {
 		SecureRandom random = new SecureRandom();
 		byte[] ivBytes = new byte[in.getBlockSize()];
 		random.nextBytes(ivBytes);
+		System.out.println(ivBytes.length);
 		
 		try {
 			in.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(ivBytes));
