@@ -8,6 +8,10 @@ Client: initDH + initialDHmessageClient
 
 Server: initDH + initialDHmessageServer
 
+Client: pubKey + publicKeyClient
+
+Server: pubKey + publicKeyServer
+
 Client: IV + iv
 
 Server: IV + iv2
