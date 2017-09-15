@@ -1,0 +1,25 @@
+Handshake:
+
+Client: Hello + prime
+
+Server: Hello + prime2
+
+Client: initDH + initialDHmessageClient
+
+Server: initDH + initialDHmessageServer
+
+Client: IV + iv
+
+Server: IV + iv2
+
+Client: enc(all recieved messages from server + nonce)
+
+Server: enc(all recieved messages from client + nonce)
+
+*******************
+Handshake done
+*******************
+
+Data exchange:
+
+...
