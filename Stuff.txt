@@ -11,3 +11,7 @@ nonce kan uppnås via nya värden på p och g för varje session
 https://github.com/bcgit/bc-java/blob/master/core/src/test/java/org/bouncycastle/crypto/tls/test/DTLSServerTest.java
 
 http://www.java2s.com/Code/Java/Network-Protocol/UseDatagramSockettosendoutandreceiveDatagramPacket.htm
+
+https://github.com/bcgit/bc-java/blob/master/core/src/test/java/org/bouncycastle/crypto/test/DHTest.java
+
+https://github.com/bcgit/bc-java/blob/master/prov/src/test/java/org/bouncycastle/jce/provider/test/DHTest.java
