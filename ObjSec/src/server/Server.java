@@ -20,16 +20,17 @@ import org.bouncycastle.crypto.params.DHPrivateKeyParameters;
 import org.bouncycastle.crypto.params.DHPublicKeyParameters;
 
 import utility.Crypto;
+import utility.MockClientServer;
 import utility.Utility;
 
-public class Server {
-	private InetAddress host;
+public class Server extends MockClientServer{
+	//private InetAddress host;
 	private final int port = 9877;
-	private DatagramSocket socket;
-	private BigInteger p;
-	private BigInteger g;
-	private Crypto crypt;
-	private BigInteger key;
+	//private DatagramSocket socket;
+	//private BigInteger p;
+	//private BigInteger g;
+	//private Crypto crypt;
+	private BigInteger key;//TODO remove and process key locally
 
 	public static void main(String[] args) throws Exception{
 		new Server().doSetup();
