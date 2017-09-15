@@ -1,8 +1,8 @@
 Handshake:
 
-Client: Hello + prime
+Client: Hello + prime g
 
-Server: Hello + prime2
+Server: Hello + prime p
 
 Client: initDH + initialDHmessageClient
 
