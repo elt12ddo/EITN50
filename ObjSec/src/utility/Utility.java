@@ -14,4 +14,10 @@ public class Utility {
 		System.arraycopy(second, 0, out, first.length, second.length);
 		return out;
 	}
+	public static byte[] concatByte(byte first, byte[] second) {
+		byte[] out = new byte[1 + second.length];
+		out[1] = first;
+		System.arraycopy(second, 0, out, 1, second.length);
+		return out;
+	}
 }
