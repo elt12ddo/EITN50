@@ -98,7 +98,7 @@ public class Server extends MockClientServer{
 		if(allreceived[0] != HELLO){return;}
 		//TODO Might be better to throw failedHandshakeException instead of just returning, 
 		//also might be a good idea to loop the handshake call so that the server does not have to be restarted every time
-		g = new BigInteger(Arrays.copyOfRange(packet.getData(), 5, packet.getLength()));
+		g = new BigInteger(Arrays.copyOfRange(packet.getData(), 1, packet.getLength()));
 
 		//Send server hello with prime p
 		temp = Utility.concatByte(HELLO, p.toByteArray());
@@ -110,7 +110,7 @@ public class Server extends MockClientServer{
 		socket.receive(packet);
 		allreceived = Utility.concatByte(allreceived, packet.getData());
 		if(packet.getData()[0] != INIT_DH){return;}
-		BigInteger initmsg = new BigInteger(Arrays.copyOfRange(packet.getData(), 6, packet.getLength()));
+		BigInteger initmsg = new BigInteger(Arrays.copyOfRange(packet.getData(), 1, packet.getLength()));
 
 		//calc DH stuff
 		DHKeyPairGenerator gen = new DHKeyPairGenerator();
@@ -137,7 +137,7 @@ public class Server extends MockClientServer{
 		socket.receive(packet);
 		allreceived = Utility.concatByte(allreceived, packet.getData());
 		if(packet.getData()[0] != PUBLIC_KEY){return;}
-		BigInteger clientPubY = new BigInteger(Arrays.copyOfRange(packet.getData(), 6, packet.getLength()));
+		BigInteger clientPubY = new BigInteger(Arrays.copyOfRange(packet.getData(), 1, packet.getLength()));
 
 		//calc the shared key 
 		DHPublicKeyParameters clientPublParams = new DHPublicKeyParameters(clientPubY,DHparams);
