@@ -100,7 +100,7 @@ public class Server {
 			//Send server hello with prime p
 			buffer = Utility.concatByte(flag.getBytes(), p.toByteArray());
 			allsent = buffer; 
-			DatagramPacket sendPacket = new DatagramPacket(buffer, buffer.length);
+			DatagramPacket sendPacket = new DatagramPacket(buffer, buffer.length,host,port);
 			socket.send(sendPacket);
 			
 			//Accept initial DH packet from client
@@ -128,7 +128,7 @@ public class Server {
 				//send initial DH packet from server
 				buffer = Utility.concatByte(flag.getBytes(), msg.toByteArray());
 				allsent = Utility.concatByte(allsent, buffer); 
-				sendPacket = new DatagramPacket(buffer, buffer.length);
+				sendPacket = new DatagramPacket(buffer, buffer.length,host,port);
 				socket.send(sendPacket);
 				
 				//Accept clients public y
@@ -148,7 +148,7 @@ public class Server {
 					//send server public y
 					buffer = Utility.concatByte(flag.getBytes(), publParams.getY().toByteArray());
 					allsent = Utility.concatByte(allsent, buffer);
-					sendPacket = new DatagramPacket(buffer,buffer.length);
+					sendPacket = new DatagramPacket(buffer,buffer.length,host,port);
 					socket.send(sendPacket);
 					
 					//accept clients final (handshake that is) message i.e the all previous messages encrypted with the shared key + a nonce
@@ -166,7 +166,7 @@ public class Server {
 							byte[] m = Utility.concatByte(allreceived, nonce);
 							m = crypt.encrypt(m);//TODO handle null?
 							buffer = m;
-							sendPacket = new DatagramPacket(buffer, buffer.length);
+							sendPacket = new DatagramPacket(buffer, buffer.length,host,port);
 							socket.send(sendPacket);
 							
 							//All good on the server proceed to data transfer
