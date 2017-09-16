@@ -94,6 +94,9 @@ public class Server {
 		socket.receive(packet);
 		allreceived = packet.getData();
 		String flag = new String(packet.getData(),0,5);
+		//if(allreceived[0] != HELLO){return;}
+		//TODO Might be better to throw failedHandshakeException instead of just returning, 
+		//also might be a good idea to loop the handshake call so that the server does not have to be restarted every time
 		if(flag.equals("Hello")){
 			g = new BigInteger(Arrays.copyOfRange(packet.getData(), 5, packet.getLength()));
 			
