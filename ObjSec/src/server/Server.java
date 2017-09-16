@@ -96,13 +96,16 @@ public class Server extends MockClientServer{
 		socket.receive(packet);
 		allreceived = packet.getData();
 		String flag = new String(packet.getData(),0,5);
+		//if(allreceived[0] != HELLO){return;}
+		//TODO Might be better to throw failedHandshakeException instead of just returning, 
+		//also might be a good idea to loop the handshake call so that the server does not have to be restarted every time
 		if(flag.equals("Hello")){
 			g = new BigInteger(Arrays.copyOfRange(packet.getData(), 5, packet.getLength()));
 			
 			//Send server hello with prime p
 			temp = Utility.concatByte(flag.getBytes(), p.toByteArray());
 			allsent = temp; 
-			DatagramPacket sendPacket = new DatagramPacket(temp, temp.length);
+			DatagramPacket sendPacket = new DatagramPacket(temp, temp.length,host,port);
 			socket.send(sendPacket);
 			
 			//Accept initial DH packet from client
@@ -130,7 +133,7 @@ public class Server extends MockClientServer{
 				//send initial DH packet from server
 				temp = Utility.concatByte(flag.getBytes(), msg.toByteArray());
 				allsent = Utility.concatByte(allsent, temp); 
-				sendPacket = new DatagramPacket(temp, temp.length);
+				sendPacket = new DatagramPacket(temp, temp.length,host,port);
 				socket.send(sendPacket);
 				
 				//Accept clients public y
@@ -150,7 +153,7 @@ public class Server extends MockClientServer{
 					//send server public y
 					temp = Utility.concatByte(flag.getBytes(), publParams.getY().toByteArray());
 					allsent = Utility.concatByte(allsent, temp);
-					sendPacket = new DatagramPacket(temp,temp.length);
+					sendPacket = new DatagramPacket(temp,temp.length,host,port);
 					socket.send(sendPacket);
 					
 					//accept clients final (handshake that is) message i.e the all previous messages encrypted with the shared key + a nonce
@@ -168,7 +171,7 @@ public class Server extends MockClientServer{
 							byte[] m = Utility.concatByte(allreceived, nonce);
 							m = crypt.encrypt(m);//TODO handle null?
 							temp = m;
-							sendPacket = new DatagramPacket(temp, temp.length);
+							sendPacket = new DatagramPacket(temp, temp.length,host,port);
 							socket.send(sendPacket);
 							
 							//All good on the server proceed to data transfer
