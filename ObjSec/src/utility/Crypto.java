@@ -2,9 +2,11 @@ package utility;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
@@ -16,6 +18,7 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 public class Crypto {
 	private Key key;
@@ -34,9 +37,11 @@ public class Crypto {
 	/**
 	 * This method sets the key that is used by this object to encrypt and  decrypt.
 	 * @param The encryption key
+	 * @throws NoSuchAlgorithmException 
 	 */
-	public void setKey(Key key) {
-		this.key = key;
+	public void setKey(BigInteger integerKey) throws NoSuchAlgorithmException {
+		MessageDigest md = MessageDigest.getInstance("MD5");
+		key = new SecretKeySpec(md.digest(integerKey.toByteArray()), "AES");
 	}
 	private byte[] ivGenerator() {
 		SecureRandom random = new SecureRandom();
