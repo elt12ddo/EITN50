@@ -74,40 +74,41 @@ public class Server extends MockClientServer{
 
 	private void doSetup() throws Exception{
 
+		System.out.println("Server initialization");
 		host = InetAddress.getByName("localhost");
 		socket = new DatagramSocket(6789);
 		p = BigInteger.probablePrime(1024, new Random());
 		crypt = new Crypto();
 		//TODO
 
-
+		System.out.println("Start handshake");
 		doHandshake();
 		return;
 	}
 
 	private void doHandshake() throws Exception{
-		byte[] allreceived;
-		byte[] allsent;
+		byte[] allReceived;
+		byte[] allSent;
 		byte[] buffer = new byte[1024];
 		byte[] temp;
 		DatagramPacket packet = new DatagramPacket(buffer,1024);
 		//Accept client hello with prime g
 		socket.receive(packet);
-		allreceived = packet.getData();
-		if(allreceived[0] != HELLO){return;}
+		allReceived = packet.getData();
+		if(allReceived[0] != HELLO){return;}
 		//TODO Might be better to throw failedHandshakeException instead of just returning, 
 		//also might be a good idea to loop the handshake call so that the server does not have to be restarted every time
 		g = new BigInteger(Arrays.copyOfRange(packet.getData(), 1, packet.getLength()));
 
 		//Send server hello with prime p
 		temp = Utility.concatByte(HELLO, p.toByteArray());
-		allsent = temp; 
+		allSent = temp; 
 		DatagramPacket sendPacket = new DatagramPacket(temp, temp.length,host,port);
 		socket.send(sendPacket);
 
 		//Accept initial DH packet from client
 		socket.receive(packet);
-		allreceived = Utility.concatByte(allreceived, packet.getData());
+		allReceived = Utility.concatByte(allReceived, packet.getData());
 		if(packet.getData()[0] != INIT_DH){return;}
 		BigInteger initmsg = new BigInteger(Arrays.copyOfRange(packet.getData(), 1, packet.getLength()));
 
@@ -128,13 +129,13 @@ public class Server extends MockClientServer{
 
 		//send initial DH packet from server
 		temp = Utility.concatByte(INIT_DH, msg.toByteArray());
-		allsent = Utility.concatByte(allsent, temp); 
+		allSent = Utility.concatByte(allSent, temp); 
 		sendPacket = new DatagramPacket(temp, temp.length,host,port);
 		socket.send(sendPacket);
 
 		//Accept clients public y
 		socket.receive(packet);
-		allreceived = Utility.concatByte(allreceived, packet.getData());
+		allReceived = Utility.concatByte(allReceived, packet.getData());
 		if(packet.getData()[0] != PUBLIC_KEY){return;}
 		BigInteger clientPubY = new BigInteger(Arrays.copyOfRange(packet.getData(), 1, packet.getLength()));
 
@@ -144,29 +145,31 @@ public class Server extends MockClientServer{
 
 		//send server public y
 		temp = Utility.concatByte(PUBLIC_KEY, publParams.getY().toByteArray());
-		allsent = Utility.concatByte(allsent, temp);
+		allSent = Utility.concatByte(allSent, temp);
 		sendPacket = new DatagramPacket(temp,temp.length,host,port);
 		socket.send(sendPacket);
 
 		//accept clients final (handshake that is) message i.e the all previous messages encrypted with the shared key + a nonce
 		socket.receive(packet);
-		allreceived = Utility.concatByte(allreceived, packet.getData());
+		allReceived = Utility.concatByte(allReceived, packet.getData());
 
 		byte[] finalMsg = crypt.decrypt(packet.getData());
 		if(finalMsg == null){return;}
 		byte[] messages = Arrays.copyOfRange(finalMsg, 0, finalMsg.length - 8);
 
-		if(!Arrays.equals(allsent, messages)){return;}
+		if(!Arrays.equals(calcHash(allSent), messages)){return;}
 		byte[] nonce = Arrays.copyOfRange(finalMsg, finalMsg.length - 8, finalMsg.length);
 
 		//send servers final (handshake) message
-		byte[] m = Utility.concatByte(allreceived, nonce);
+		byte[] m = Utility.concatByte(calcHash(allReceived), nonce);
 		m = crypt.encrypt(m);//TODO handle null?
 		temp = m;
 		sendPacket = new DatagramPacket(temp, temp.length,host,port);
 		socket.send(sendPacket);
 
 		//All good on the server proceed to data transfer
+		System.out.println("Handshake done...");
+		System.out.println("Start data transfer");
 		doComunication();
 
 		return;
