@@ -49,7 +49,56 @@ public class Main {
 		
 		System.out.println("Hello World!");
 		
+		 DHParameters                dhParams = new DHParameters(p, g);
+         DHKeyGenerationParameters   params2 = new DHKeyGenerationParameters(new SecureRandom(), dhParams);
+         DHKeyPairGenerator          kpGen = new DHKeyPairGenerator();
+
+         kpGen.init(params2);
+		
+        //DHKeyPairGenerator kpGen = getDHKeyPairGenerator(g, p);
+
+        //
+        // generate first pair
+        //
+        AsymmetricCipherKeyPair     pair = kpGen.generateKeyPair();
+
+        DHPublicKeyParameters       pu1 = (DHPublicKeyParameters)pair.getPublic();
+        DHPrivateKeyParameters      pv1 = (DHPrivateKeyParameters)pair.getPrivate();
+        
+        BigInteger pu1Y = pu1.getY();
+        pu1 = new DHPublicKeyParameters(pu1Y,dhParams);
+        //
+        // generate second pair
+        //
+        pair = gen.generateKeyPair();
+
+        DHPublicKeyParameters       pu2 = (DHPublicKeyParameters)pair.getPublic();
+        DHPrivateKeyParameters      pv2 = (DHPrivateKeyParameters)pair.getPrivate();
+
+        //
+        // two way
+        //
+        DHAgreement    e1 = new DHAgreement();
+        DHAgreement    e2 = new DHAgreement();
+
+        e1.init(pv1);
+        e2.init(pv2);
+
+        BigInteger  m1 = e1.calculateMessage();
+        BigInteger  m2 = e2.calculateMessage();
+
+        BigInteger   k1 = e1.calculateAgreement(pu2, m2);
+        BigInteger   k2 = e2.calculateAgreement(pu1, m1);
+
+        if (k1.equals(k2))
+        {
+            System.out.println("OK, keys are same");
+		
 
 	}
+	}
+        
+	
+	
 
 }

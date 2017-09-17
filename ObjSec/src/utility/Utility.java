@@ -16,7 +16,7 @@ public class Utility {
 	}
 	public static byte[] concatByte(byte first, byte[] second) {
 		byte[] out = new byte[1 + second.length];
-		out[1] = first;
+		out[0] = first;
 		System.arraycopy(second, 0, out, 1, second.length);
 		return out;
 	}

@@ -31,8 +31,12 @@ public class Server extends MockClientServer{
 	//private BigInteger g;
 	//private Crypto crypt;
 
-	public static void main(String[] args) throws Exception{
+	public static void main(String[] args){
+		try{
 		new Server().doSetup();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 
 
 		/*
@@ -99,20 +103,25 @@ public class Server extends MockClientServer{
 		//TODO Might be better to throw failedHandshakeException instead of just returning, 
 		//also might be a good idea to loop the handshake call so that the server does not have to be restarted every time
 		g = new BigInteger(Arrays.copyOfRange(packet.getData(), 1, packet.getLength()));
+		System.out.println("After receiving Hello");
 
 		//Send server hello with prime p
 		temp = Utility.concatByte(HELLO, p.toByteArray());
 		allSent = temp; 
 		DatagramPacket sendPacket = new DatagramPacket(temp, temp.length,host,port);
 		socket.send(sendPacket);
+		System.out.println("After sending hello");
 
 		//Accept initial DH packet from client
 		socket.receive(packet);
 		allReceived = Utility.concatByte(allReceived, packet.getData());
-		if(packet.getData()[0] != INIT_DH){return;}
+		if(packet.getData()[0] != INIT_DH){System.out.println("This?");return;}
 		BigInteger initmsg = new BigInteger(Arrays.copyOfRange(packet.getData(), 1, packet.getLength()));
+		System.out.println("After receiving init DH");
 
 		//calc DH stuff
+		System.out.println("p: "+p);
+		System.out.println("g: "+g);
 		DHKeyPairGenerator gen = new DHKeyPairGenerator();
 		DHParameters DHparams = new DHParameters(p,g);
 		DHKeyGenerationParameters params = new DHKeyGenerationParameters(new SecureRandom(), DHparams);
@@ -125,6 +134,7 @@ public class Server extends MockClientServer{
 		DHAgreement dha = new DHAgreement();
 		dha.init(privParams);
 		BigInteger msg = dha.calculateMessage();
+		System.out.println("After calc DH");
 
 
 		//send initial DH packet from server
@@ -132,29 +142,39 @@ public class Server extends MockClientServer{
 		allSent = Utility.concatByte(allSent, temp); 
 		sendPacket = new DatagramPacket(temp, temp.length,host,port);
 		socket.send(sendPacket);
+		System.out.println("After sending DH");
 
 		//Accept clients public y
 		socket.receive(packet);
 		allReceived = Utility.concatByte(allReceived, packet.getData());
 		if(packet.getData()[0] != PUBLIC_KEY){return;}
 		BigInteger clientPubY = new BigInteger(Arrays.copyOfRange(packet.getData(), 1, packet.getLength()));
+		System.out.println("After receiving public y");
+		System.out.println(clientPubY);
 
 		//calc the shared key 
 		DHPublicKeyParameters clientPublParams = new DHPublicKeyParameters(clientPubY,DHparams);
-		crypt.setKey(dha.calculateAgreement(clientPublParams, initmsg));
+		BigInteger key = dha.calculateAgreement(clientPublParams, initmsg);
+		crypt.setKey(BigInteger.ONE);
+		System.out.println("Key: "+key);
+		System.out.println("After calc shared key");
 
 		//send server public y
 		temp = Utility.concatByte(PUBLIC_KEY, publParams.getY().toByteArray());
+		System.out.println(publParams.getY());
 		allSent = Utility.concatByte(allSent, temp);
 		sendPacket = new DatagramPacket(temp,temp.length,host,port);
 		socket.send(sendPacket);
+		System.out.println("After sending publ y");
 
 		//accept clients final (handshake that is) message i.e encrypt(hash(all previous messages) + nonce)
 		socket.receive(packet);
-		allReceived = Utility.concatByte(allReceived, packet.getData());
-
-		byte[] finalMsg = crypt.decrypt(packet.getData());
-		if(finalMsg == null){return;}
+		System.out.println(new String(packet.getData(),0,packet.getLength()).getBytes().length);
+		System.out.println(packet.getLength());
+		byte[] finalMsg = crypt.decrypt(packet.getData());//new String(packet.getData(),0,packet.getLength()).getBytes());//packet.getData()); <-- this apparently does not work
+		if(finalMsg == null){System.out.println("THis one?");return;}
+		System.out.println("Haaaaaaa");
+		allReceived = Utility.concatByte(allReceived, finalMsg);
 		byte[] messages = Arrays.copyOfRange(finalMsg, 0, finalMsg.length - 8);
 
 		if(!Arrays.equals(calcHash(allSent), messages)){return;}

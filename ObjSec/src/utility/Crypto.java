@@ -40,6 +40,7 @@ public class Crypto {
 	 * @throws NoSuchAlgorithmException 
 	 */
 	public void setKey(BigInteger integerKey) throws NoSuchAlgorithmException {
+		System.out.println("Key in crypto: "+new String(integerKey.toByteArray(),0,integerKey.toByteArray().length));
 		MessageDigest md = MessageDigest.getInstance("MD5");
 		key = new SecretKeySpec(md.digest(integerKey.toByteArray()), "AES");
 	}
@@ -60,6 +61,8 @@ public class Crypto {
 			throw new NoKeyException();
 		}
 		byte[] iv = ivGenerator();
+		System.out.println("iv enc: "+iv);
+		//System.out.println("enc data: "+inData); // Only makes sense if we actually get it to decrypt
 		try {
 			cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
 		} catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
@@ -74,6 +77,8 @@ public class Crypto {
 		} catch (BadPaddingException e) {
 			return null;
 		}
+		System.out.println("enc data: "+outData);
+		System.out.println("enc data"+outData.length);
 		return Utility.concatByte(outData, iv);
 	}
 	/**
@@ -84,11 +89,15 @@ public class Crypto {
 	 * @throws NoKeyException
 	 */
 	public byte[] decrypt(byte[] inData) throws NoKeyException {
+		System.out.println("Hela krypterade till dec: "+inData);
 		if(key == null) {
 			throw new NoKeyException();
 		}
 		byte[] iv = Arrays.copyOfRange(inData, inData.length - IV_LENGTH, inData.length);
+		System.out.println("iv dec: "+iv);
 		inData = Arrays.copyOf(inData, inData.length - IV_LENGTH);
+		System.out.println("dec data: "+inData);
+		System.out.println("dec data length"+inData.length);
 		try {
 			cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
 		} catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
@@ -99,8 +108,11 @@ public class Crypto {
 		try {
 			outData = cipher.doFinal(inData);
 		} catch (IllegalBlockSizeException e) {
+			System.out.println("This one does stuff");
 			return null;
 		} catch (BadPaddingException e) {
+			System.out.println("This one does stuff to");
+			e.printStackTrace();
 			return null;
 		}
 		return outData;

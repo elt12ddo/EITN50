@@ -22,6 +22,19 @@ public class Test {
 		if(i.compareTo(j)==0){
 			System.out.println("BigInt ok!");
 		}
+		try{
+		Crypto c = new Crypto();
+		c.setKey(i);
+		byte[] enc = c.encrypt(j.toByteArray());
+		byte[] dec = c.decrypt(enc);
+		BigInteger k = new BigInteger(dec);
+		if(j.compareTo(k)==0){
+			System.out.println("H");
+		}
+		}catch(Exception e){
+			System.out.println("B");
+		}
+		
 
 	}
 
