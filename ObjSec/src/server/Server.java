@@ -149,7 +149,7 @@ public class Server extends MockClientServer{
 		sendPacket = new DatagramPacket(temp,temp.length,host,port);
 		socket.send(sendPacket);
 
-		//accept clients final (handshake that is) message i.e the all previous messages encrypted with the shared key + a nonce
+		//accept clients final (handshake that is) message i.e encrypt(hash(all previous messages) + nonce)
 		socket.receive(packet);
 		allReceived = Utility.concatByte(allReceived, packet.getData());
 
