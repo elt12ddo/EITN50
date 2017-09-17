@@ -30,7 +30,6 @@ public class Server extends MockClientServer{
 	//private BigInteger p;
 	//private BigInteger g;
 	//private Crypto crypt;
-	private BigInteger key;//TODO remove and process key locally
 
 	public static void main(String[] args) throws Exception{
 		new Server().doSetup();
@@ -141,10 +140,7 @@ public class Server extends MockClientServer{
 
 		//calc the shared key 
 		DHPublicKeyParameters clientPublParams = new DHPublicKeyParameters(clientPubY,DHparams);
-		key = dha.calculateAgreement(clientPublParams, initmsg);
-		//TODO
-		//Fix key length
-		//and set key in crypt
+		crypt.setKey(dha.calculateAgreement(clientPublParams, initmsg));
 
 		//send server public y
 		temp = Utility.concatByte(PUBLIC_KEY, publParams.getY().toByteArray());
