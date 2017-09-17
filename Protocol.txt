@@ -12,9 +12,9 @@ Client: pubKey + publicKeyClient
 
 Server: pubKey + publicKeyServer
 
-Client: enc(all recieved messages from server + nonce)
+Client: enc(h(all recieved messages from server) + nonce)
 
-Server: enc(all recieved messages from client + nonce)
+Server: enc(h(all recieved messages from client) + nonce)
 
 *******************
 Handshake done
