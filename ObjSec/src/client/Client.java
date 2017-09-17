@@ -96,7 +96,7 @@ public class Client extends MockClientServer {
 		if(packet.getData()[0] != INIT_DH) { return; }
 		temp = packet.getData();
 		allReceived = Utility.concatByte(allReceived, temp);
-		BigInteger msgServer = new BigInteger(Arrays.copyOfRange(temp, 1, packet.getData().length));
+		BigInteger msgServer = new BigInteger(Arrays.copyOfRange(packet.getData(), 1, packet.getLength()));//Sigh, so easy when you see it
 		
 		// Send public key to server
 		temp = Utility.concatByte(PUBLIC_KEY, publParams.getY().toByteArray());
@@ -118,7 +118,7 @@ public class Client extends MockClientServer {
 		
 		// Create the Crypto object
 		crypt = new Crypto();
-		crypt.setKey(BigInteger.ONE);
+		crypt.setKey(key);
 		
 		// Calculate hash of allReceived and send it
 		SecureRandom random = new SecureRandom();

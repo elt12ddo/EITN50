@@ -78,7 +78,7 @@ public class Crypto {
 			return null;
 		}
 		System.out.println("enc data: "+outData);
-		System.out.println("enc data"+outData.length);
+		System.out.println("enc data length: "+outData.length);
 		return Utility.concatByte(outData, iv);
 	}
 	/**
@@ -97,7 +97,7 @@ public class Crypto {
 		System.out.println("iv dec: "+iv);
 		inData = Arrays.copyOf(inData, inData.length - IV_LENGTH);
 		System.out.println("dec data: "+inData);
-		System.out.println("dec data length"+inData.length);
+		System.out.println("dec data length: "+inData.length);
 		try {
 			cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
 		} catch (InvalidKeyException | InvalidAlgorithmParameterException e) {

@@ -155,7 +155,7 @@ public class Server extends MockClientServer{
 		//calc the shared key 
 		DHPublicKeyParameters clientPublParams = new DHPublicKeyParameters(clientPubY,DHparams);
 		BigInteger key = dha.calculateAgreement(clientPublParams, initmsg);
-		crypt.setKey(BigInteger.ONE);
+		crypt.setKey(key);
 		System.out.println("Key: "+key);
 		System.out.println("After calc shared key");
 
@@ -171,7 +171,8 @@ public class Server extends MockClientServer{
 		socket.receive(packet);
 		System.out.println(new String(packet.getData(),0,packet.getLength()).getBytes().length);
 		System.out.println(packet.getLength());
-		byte[] finalMsg = crypt.decrypt(packet.getData());//new String(packet.getData(),0,packet.getLength()).getBytes());//packet.getData()); <-- this apparently does not work
+		System.out.println("This ggg"+packet.getData().length);
+		byte[] finalMsg = crypt.decrypt(Arrays.copyOfRange(packet.getData(), 0, packet.getLength()));//packet.getData());//new String(packet.getData(),0,packet.getLength()).getBytes());//packet.getData()); <-- this apparently does not work
 		if(finalMsg == null){System.out.println("THis one?");return;}
 		System.out.println("Haaaaaaa");
 		allReceived = Utility.concatByte(allReceived, finalMsg);
