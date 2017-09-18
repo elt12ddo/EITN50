@@ -145,21 +145,24 @@ public class Server extends MockClientServer{
 		DatagramPacket p = new DatagramPacket(buf,1024);
 		DatagramPacket sendP;
 		long time;
-		ByteBuffer bb = ByteBuffer.allocate(Long.BYTES);
+		ByteBuffer bb;
 		
 		while(true){
 		socket.receive(p);
 		byte[] msg = crypt.decrypt(Arrays.copyOfRange(p.getData(),0,p.getLength()));
-		if(msg == null){System.out.println("Error");return;}
+		if(msg == null){System.out.println("Error1");return;}
 		if(msg[0] == DISCONNECT){System.out.println("Client disconnected");break;}
-		if(msg[0] != MSG){System.out.println("Error");break;}
+		if(msg[0] != MSG){System.out.println("Error2");break;}
+
+		bb = ByteBuffer.allocate(Long.BYTES);
 		bb.put(Arrays.copyOfRange(msg, msg.length-8, msg.length));
 		bb.flip();
-		if(checkTimeStamp(bb.getLong())){System.out.println("Error");break;}
-		String message = new String(msg,0,msg.length-8);
-		String response = "The server received the following message from the client: \""+message+"\"";
+		if(!checkTimeStamp(bb.getLong())){System.out.println("Error3");break;}
+		String message = new String(msg,1,msg.length-9);
+		String response = "The server received the following message from the client: "+message;
 		byte[] m = Utility.concatByte(MSG, response.getBytes());
 		time = Instant.now().toEpochMilli();
+		bb = ByteBuffer.allocate(Long.BYTES);
 		bb.putLong(time);
 		m = Utility.concatByte(m, bb.array());
 		m = crypt.encrypt(m);//TODO handle null?

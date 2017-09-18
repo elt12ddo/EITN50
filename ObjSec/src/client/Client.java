@@ -141,11 +141,12 @@ public class Client extends MockClientServer {
 	private void doComunication() throws IOException, NoKeyException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		DatagramPacket packet = new DatagramPacket(new byte[1024],1024);
-		ByteBuffer bb = ByteBuffer.allocate(Long.BYTES);
+		ByteBuffer bb;
 		byte[] data;
 		DatagramPacket sendPacket;
 		while(true) {
 			// First we send a line we read from the terminal
+			bb = ByteBuffer.allocate(Long.BYTES);
 			byte[] line = br.readLine().getBytes();
 			byte[] time = bb.putLong(Instant.now().toEpochMilli()).array();
 			if(line.equals("exit".getBytes())) {
@@ -167,7 +168,8 @@ public class Client extends MockClientServer {
 			if(temp == null) { return; }
 
 			// Check timestamp
-			bb.put(temp, temp.length - 8, temp.length);
+			bb = ByteBuffer.allocate(Long.BYTES);
+			bb.put(temp, temp.length - 8, 8);
 			bb.flip();
 			if(!checkTimeStamp(bb.getLong())) { return; }
 			
@@ -175,7 +177,7 @@ public class Client extends MockClientServer {
 			if(temp[0] != MSG) { return; }
 			
 			// Print the message from the server
-			System.out.println(new String(temp, 1, temp.length - 8));
+			System.out.println(new String(temp, 1, temp.length - 9));
 		}
 	}
 }
