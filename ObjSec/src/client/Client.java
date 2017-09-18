@@ -116,6 +116,7 @@ public class Client extends MockClientServer {
 		SecureRandom random = new SecureRandom();
 		byte[] nonce = new byte[8];
 		random.nextBytes(nonce);
+		allSent = Utility.concatByte(allSent, Utility.concatByte(calcHash(allReceived),nonce));
 		temp = crypt.encrypt(Utility.concatByte(calcHash(allReceived),nonce));
 		sendPacket = new DatagramPacket(temp,temp.length,host,port);
 		socket.send(sendPacket);
@@ -125,10 +126,10 @@ public class Client extends MockClientServer {
 		temp = crypt.decrypt(Arrays.copyOfRange(packet.getData(), 0, packet.getLength()));
 		
 		// Check nonce
-		if(!Arrays.equals(nonce, Arrays.copyOfRange(temp, temp.length - nonce.length, temp.length))) { return; }
+		if(!Arrays.equals(nonce, Arrays.copyOfRange(temp, temp.length - nonce.length, temp.length))) {System.out.println("Hi");return; }
 		
 		// Compare hash to server response
-		if(!Arrays.equals(calcHash(allSent), Arrays.copyOfRange(temp, 0, temp.length - nonce.length))) { return; }
+		if(!Arrays.equals(calcHash(allSent), Arrays.copyOfRange(temp, 0, temp.length - nonce.length))) {System.out.println("Hi2");return; }
 		
 		System.out.println("Handshake DONE");
 		doComunication();
