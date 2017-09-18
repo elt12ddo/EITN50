@@ -2,6 +2,7 @@ package utility;
 
 import java.math.BigInteger;
 import java.net.DatagramPacket;
+import java.time.Instant;
 import java.util.Random;
 
 import org.bouncycastle.util.Arrays;
@@ -9,6 +10,15 @@ import org.bouncycastle.util.Arrays;
 public class Test {
 
 	public static void main(String[] args) {
+		
+		Instant inst = Instant.now();
+		System.out.println(inst);
+		long time = inst.toEpochMilli();
+		System.out.println(time);
+		Instant inst2 = Instant.ofEpochMilli(time);
+		System.out.println(inst2);
+		
+		
 		String s = "Hello";
 		byte[] buffer = new byte[1024];
 		BigInteger i = BigInteger.probablePrime(1024, new Random());
