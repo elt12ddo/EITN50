@@ -6,8 +6,10 @@ import java.math.BigInteger;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 //import java.net.UnknownHostException;
 import java.security.SecureRandom;
+import java.time.Instant;
 import java.util.Random;
 import java.util.Arrays;
 
@@ -139,9 +141,51 @@ public class Server extends MockClientServer{
 	}
 
 	private void doComunication() throws Exception{
+		byte[] buf = new byte[1024];
+		DatagramPacket p = new DatagramPacket(buf,1024);
+		DatagramPacket sendP;
+		long time;
+		ByteBuffer bb = ByteBuffer.allocate(Long.BYTES);
+		
+		while(true){
+		socket.receive(p);
+		byte[] msg = crypt.decrypt(Arrays.copyOfRange(p.getData(),0,p.getLength()));
+		if(msg == null){System.out.println("Error");return;}
+		if(msg[0] == DISCONNECT){System.out.println("Client disconnected");break;}
+		if(msg[0] != MSG){System.out.println("Error");break;}
+		bb.put(Arrays.copyOfRange(msg, msg.length-8, msg.length));
+		bb.flip();
+		if(checkTimeStamp(bb.getLong())){System.out.println("Error");break;}
+		String message = new String(msg,0,msg.length-8);
+		String response = "The server received the following message from the client: \""+message+"\"";
+		byte[] m = Utility.concatByte(MSG, response.getBytes());
+		time = Instant.now().toEpochMilli();
+		bb.putLong(time);
+		m = Utility.concatByte(m, bb.array());
+		m = crypt.encrypt(m);//TODO handle null?
+		sendP = new DatagramPacket(m,m.length,host,port);
+		socket.send(sendP);
+		}
+		System.out.println("Reseting server...");
 		//TODO
 
 		return;
 	}
 
 }
+
+/*
+
+public byte[] longToBytes(long x) {
+    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+    buffer.putLong(x);
+    return buffer.array();
+}
+
+public long bytesToLong(byte[] bytes) {
+    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+    buffer.put(bytes);
+    buffer.flip();//need flip 
+    return buffer.getLong();
+}
+*/
