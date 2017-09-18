@@ -2,7 +2,9 @@ package client;
 
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 import java.security.SecureRandom;
+import java.time.Instant;
 import java.util.Random;
 import java.util.Arrays;
 
@@ -13,23 +15,20 @@ import org.bouncycastle.crypto.params.DHKeyGenerationParameters;
 import org.bouncycastle.crypto.params.DHParameters;
 import org.bouncycastle.crypto.params.DHPrivateKeyParameters;
 import org.bouncycastle.crypto.params.DHPublicKeyParameters;
-//import org.bouncycastle.util.Arrays;
 
 import utility.Crypto;
 import utility.MockClientServer;
+import utility.NoKeyException;
 import utility.Utility;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.net.DatagramPacket;
 
 public class Client extends MockClientServer {
 	private final int port = 6789;
-	/*
-	private InetAddress host;
-	private DatagramSocket socket;
-	private BigInteger p;
-	private BigInteger g;
-	private Crypto crypt;*/
 
 	public static void main(String[] args) throws Exception {
 		new Client().doSetup();
@@ -125,6 +124,9 @@ public class Client extends MockClientServer {
 		socket.receive(packet);
 		temp = crypt.decrypt(Arrays.copyOfRange(packet.getData(), 0, packet.getLength()));
 		
+		// Check so that it actually was decrypted
+		if(temp == null) { return; }
+		
 		// Check nonce
 		if(!Arrays.equals(nonce, Arrays.copyOfRange(temp, temp.length - nonce.length, temp.length))) {System.out.println("Hi");return; }
 		
@@ -136,9 +138,44 @@ public class Client extends MockClientServer {
 		return;
 	}
 
-	private void doComunication() {
-		// TODO Auto-generated method stub
-		
-	}
+	private void doComunication() throws IOException, NoKeyException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		DatagramPacket packet = new DatagramPacket(new byte[1024],1024);
+		ByteBuffer bb = ByteBuffer.allocate(Long.BYTES);
+		byte[] data;
+		DatagramPacket sendPacket;
+		while(true) {
+			// First we send a line we read from the terminal
+			byte[] line = br.readLine().getBytes();
+			byte[] time = bb.putLong(Instant.now().toEpochMilli()).array();
+			if(line.equals("exit".getBytes())) {
+				data = crypt.encrypt(Utility.concatByte(DISCONNECT, time));
+				sendPacket = new DatagramPacket(data, data.length, host, port);
+				socket.send(sendPacket);
+				break;
+			} else {
+				data = crypt.encrypt(Utility.concatByte(MSG, Utility.concatByte(line, time)));
+				sendPacket = new DatagramPacket(data, data.length, host, port);
+				socket.send(sendPacket);
+			}
+			
+			// Receive something from the server...
+			socket.receive(packet);
+			byte[] temp = crypt.decrypt(Arrays.copyOfRange(packet.getData(), 0, packet.getLength()));
+			
+			// Check if decrypt atually returns somthing
+			if(temp == null) { return; }
 
+			// Check timestamp
+			bb.put(temp, temp.length - 8, temp.length);
+			bb.flip();
+			if(!checkTimeStamp(bb.getLong())) { return; }
+			
+			// Check if the flag is correct
+			if(temp[0] != MSG) { return; }
+			
+			// Print the message from the server
+			System.out.println(new String(temp, 1, temp.length - 8));
+		}
+	}
 }
