@@ -23,9 +23,9 @@ Handshake done
 Data exchange:
 
 while(client flag == MSG){
-Client: MSG + enc(message + timestamp);
+Client: enc(MSG + message + timestamp);
 
-Server: MSG + enc(messageResponse + timestamp)
+Server: enc(MSG + messageResponse + timestamp)
 
 }
 if client flag == DISCONNECT
