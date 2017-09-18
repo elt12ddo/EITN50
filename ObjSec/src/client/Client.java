@@ -39,10 +39,6 @@ public class Client extends MockClientServer {
 		host = InetAddress.getByName("localhost");
 		socket = new DatagramSocket(9877);
 		g = BigInteger.probablePrime(1024, new Random());
-		crypt = new Crypto();
-		//TODO
-		
-		
 		doHandshake();
 		return;
 	}
@@ -63,14 +59,12 @@ public class Client extends MockClientServer {
 		DatagramPacket packet = new DatagramPacket(buffer,1024);
 		socket.receive(packet);
 		if(packet.getData()[0] != HELLO) { return; }
-		allReceived = packet.getData();
+		allReceived = Arrays.copyOfRange(packet.getData(), 0, packet.getLength());
 		
 		// Extract the prime p from data.
 		p = new BigInteger(Arrays.copyOfRange(packet.getData(), 1, packet.getLength()));
 		
 		// Initial Diffie-Hellman calculations
-		System.out.println("p: "+p);
-		System.out.println("g: "+g);
 		DHKeyPairGenerator gen = new DHKeyPairGenerator();
 		DHParameters DHparams = new DHParameters(p,g);
 		DHKeyGenerationParameters params = new DHKeyGenerationParameters(new SecureRandom(), DHparams);
@@ -94,27 +88,25 @@ public class Client extends MockClientServer {
 		// Fetch server response to INIT_DH and extract it.
 		socket.receive(packet);
 		if(packet.getData()[0] != INIT_DH) { return; }
-		temp = packet.getData();
+		temp = Arrays.copyOfRange(packet.getData(), 0, packet.getLength());
 		allReceived = Utility.concatByte(allReceived, temp);
-		BigInteger msgServer = new BigInteger(Arrays.copyOfRange(packet.getData(), 1, packet.getLength()));//Sigh, so easy when you see it
+		BigInteger msgServer = new BigInteger(Arrays.copyOfRange(packet.getData(), 1, packet.getLength()));
 		
 		// Send public key to server
 		temp = Utility.concatByte(PUBLIC_KEY, publParams.getY().toByteArray());
-		System.out.println(publParams.getY());
 		allSent = Utility.concatByte(allSent, temp);
 		sendPacket = new DatagramPacket(temp,temp.length,host,port);
 		socket.send(sendPacket);
 		
 		// Fetch public key from server
 		socket.receive(packet);
-		allReceived = Utility.concatByte(allReceived, packet.getData());
+		allReceived = Utility.concatByte(allReceived, Arrays.copyOfRange(packet.getData(), 0, packet.getLength()));
 		if(packet.getData()[0] != PUBLIC_KEY) { return; }
 		BigInteger serverPubY = new BigInteger(Arrays.copyOfRange(packet.getData(), 1, packet.getLength()));
-		System.out.println(serverPubY);
+		
 		// Calculate shared secret
 		DHPublicKeyParameters serverPublParams = new DHPublicKeyParameters(serverPubY,DHparams);
 		BigInteger key = dha.calculateAgreement(serverPublParams, msgServer);
-		System.out.println("Key: "+key);
 		
 		// Create the Crypto object
 		crypt = new Crypto();
@@ -125,16 +117,12 @@ public class Client extends MockClientServer {
 		byte[] nonce = new byte[8];
 		random.nextBytes(nonce);
 		temp = crypt.encrypt(Utility.concatByte(calcHash(allReceived),nonce));
-		System.out.println("Hela krypterade: "+temp);
-		System.out.println("HM: "+temp.length);
-		System.out.println("msg: "+new String(temp,0,temp.length));
 		sendPacket = new DatagramPacket(temp,temp.length,host,port);
-		System.out.println(sendPacket.getLength());
 		socket.send(sendPacket);
 		
 		// Fetch response from server and decrypt it
 		socket.receive(packet);
-		temp = crypt.decrypt(packet.getData());
+		temp = crypt.decrypt(Arrays.copyOfRange(packet.getData(), 0, packet.getLength()));
 		
 		// Check nonce
 		if(!Arrays.equals(nonce, Arrays.copyOfRange(temp, temp.length - nonce.length, temp.length))) { return; }
