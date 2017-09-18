@@ -22,4 +22,13 @@ Handshake done
 
 Data exchange:
 
-...
+while(client flag == MSG){
+Client: MSG + enc(message + timestamp);
+
+Server: MSG + enc(messageResponse + timestamp)
+
+}
+if client flag == DISCONNECT
+restart handhake on server side
+
+
