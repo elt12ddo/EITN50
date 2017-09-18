@@ -146,10 +146,11 @@ public class Client extends MockClientServer {
 		DatagramPacket sendPacket;
 		while(true) {
 			// First we send a line we read from the terminal
+			System.out.print("Write message: ");
 			bb = ByteBuffer.allocate(Long.BYTES);
 			byte[] line = br.readLine().getBytes();
 			byte[] time = bb.putLong(Instant.now().toEpochMilli()).array();
-			if(line.equals("exit".getBytes())) {
+			if(Arrays.equals(line, "exit".getBytes())) {
 				data = crypt.encrypt(Utility.concatByte(DISCONNECT, time));
 				sendPacket = new DatagramPacket(data, data.length, host, port);
 				socket.send(sendPacket);
@@ -179,5 +180,6 @@ public class Client extends MockClientServer {
 			// Print the message from the server
 			System.out.println(new String(temp, 1, temp.length - 9));
 		}
+		System.out.println("Shutting down client...");
 	}
 }

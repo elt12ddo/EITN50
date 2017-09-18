@@ -30,7 +30,7 @@ public class Server extends MockClientServer{
 
 	public static void main(String[] args){
 		try{
-		new Server().doSetup();
+			new Server().doSetup();
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -169,8 +169,7 @@ public class Server extends MockClientServer{
 		sendP = new DatagramPacket(m,m.length,host,port);
 		socket.send(sendP);
 		}
-		System.out.println("Reseting server...");
-		//TODO
+		System.out.println("Shutting down server...");
 
 		return;
 	}
