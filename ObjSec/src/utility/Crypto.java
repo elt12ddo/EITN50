@@ -53,11 +53,11 @@ public class Crypto {
 	 * This method encrypts the inputed byte array with AES in EAX mode, it also concatenates in the IV used to by the encryption.
 	 * @param The byte array that is to be encrypted.
 	 * @return The concatenated data of the encrypted byte array and the IV needed to decrypt it again.
-	 * @throws NoKeyException
+	 * @throws Exception
 	 */
-	public byte[] encrypt(byte[] inData) throws NoKeyException{
+	public byte[] encrypt(byte[] inData) throws Exception{
 		if(key == null) {
-			throw new NoKeyException();
+			throw new Exception();
 		}
 		byte[] iv = ivGenerator();
 		try {
@@ -81,7 +81,7 @@ public class Crypto {
 	 * If the encrypted byte array has been altered or the key is wrong the method will return a Null instead of the decrypted byte array.
 	 * @param The encrypted byte array concatenated with the IV.
 	 * @return The decrypted byte array or a Null if the encrypted data cannot be decrypted.
-	 * @throws NoKeyException
+	 * @throws Exception
 	 */
 	public byte[] decrypt(byte[] inData) throws Exception {
 		if(key == null) {
