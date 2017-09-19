@@ -1,0 +1,19 @@
+From ObjSec folder run:
+
+javac -cp "bcprov-ext-jdk15on-158.jar" src/server/Server.java src/client/Client.java src/utility/AbstractClientServer.java src/utility/Crypto.java src/utility/NoKeyException.java src/utility/Utility.java
+
+on linux:
+
+server:
+java -cp ./src/:bcprov-ext-jdk15on-158.jar:. server.Server
+
+client:
+java -cp ./src/:bcprov-ext-jdk15on-158.jar:. client.Client
+
+
+
+on windows:
+java -cp ./src/;bcprov-ext-jdk15on-158.jar;. server.Server
+
+client:
+java -cp ./src/;bcprov-ext-jdk15on-158.jar;. client.Client
