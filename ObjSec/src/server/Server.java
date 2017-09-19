@@ -1,13 +1,10 @@
 package server;
 
-//import java.io.BufferedReader;
-//import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
-//import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Random;
@@ -43,8 +40,6 @@ public class Server extends AbstractClientServer{
 		socket = new DatagramSocket(6789);
 		p = BigInteger.probablePrime(1024, new Random());
 		crypt = new Crypto();
-		//TODO
-
 		System.out.println("Start handshake");
 		doHandshake();
 		return;
@@ -118,7 +113,6 @@ public class Server extends AbstractClientServer{
 		socket.receive(packet);
 		byte[] finalMsg = crypt.decrypt(Arrays.copyOfRange(packet.getData(), 0, packet.getLength()));
 		if(finalMsg == null){return;}
-		System.out.println("Haaaaaaa");
 		allReceived = Utility.concatByte(allReceived, finalMsg);
 		byte[] messages = Arrays.copyOfRange(finalMsg, 0, finalMsg.length - 8);
 
@@ -173,21 +167,4 @@ public class Server extends AbstractClientServer{
 
 		return;
 	}
-
 }
-
-/*
-
-public byte[] longToBytes(long x) {
-    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
-    buffer.putLong(x);
-    return buffer.array();
-}
-
-public long bytesToLong(byte[] bytes) {
-    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
-    buffer.put(bytes);
-    buffer.flip();//need flip 
-    return buffer.getLong();
-}
-*/
