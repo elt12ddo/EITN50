@@ -18,11 +18,9 @@ import org.bouncycastle.crypto.params.DHPublicKeyParameters;
 
 import utility.Crypto;
 import utility.AbstractClientServer;
-import utility.NoKeyException;
 import utility.Utility;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.net.DatagramPacket;
@@ -38,6 +36,7 @@ public class Client extends AbstractClientServer {
 		host = InetAddress.getByName("localhost");
 		socket = new DatagramSocket(9877);
 		g = BigInteger.probablePrime(1024, new Random());
+		crypt = new Crypto();
 		doHandshake();
 		return;
 	}
@@ -106,9 +105,6 @@ public class Client extends AbstractClientServer {
 		// Calculate shared secret
 		DHPublicKeyParameters serverPublParams = new DHPublicKeyParameters(serverPubY,DHparams);
 		BigInteger key = dha.calculateAgreement(serverPublParams, msgServer);
-		
-		// Create the Crypto object
-		crypt = new Crypto();
 		crypt.setKey(key);
 		
 		// Calculate hash of allReceived and send it
@@ -138,7 +134,7 @@ public class Client extends AbstractClientServer {
 		return;
 	}
 
-	private void doComunication() throws IOException, NoKeyException {
+	private void doComunication() throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		DatagramPacket packet = new DatagramPacket(new byte[1024],1024);
 		ByteBuffer bb;

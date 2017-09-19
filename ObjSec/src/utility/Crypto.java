@@ -35,7 +35,7 @@ public class Crypto {
 		cipher = Cipher.getInstance("AES/EAX/NoPadding", "BC");
 	}
 	/**
-	 * This method sets the key that is used by this object to encrypt and  decrypt.
+	 * This method sets the key that is used by this object to encrypt and decrypt.
 	 * @param The encryption key
 	 * @throws NoSuchAlgorithmException 
 	 */
@@ -83,9 +83,9 @@ public class Crypto {
 	 * @return The decrypted byte array or a Null if the encrypted data cannot be decrypted.
 	 * @throws NoKeyException
 	 */
-	public byte[] decrypt(byte[] inData) throws NoKeyException {
+	public byte[] decrypt(byte[] inData) throws Exception {
 		if(key == null) {
-			throw new NoKeyException();
+			throw new Exception("No key");
 		}
 		byte[] iv = Arrays.copyOfRange(inData, inData.length - IV_LENGTH, inData.length);
 		inData = Arrays.copyOf(inData, inData.length - IV_LENGTH);

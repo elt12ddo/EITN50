@@ -55,7 +55,7 @@ public class Server extends AbstractClientServer{
 		socket.receive(packet);
 		allReceived = Arrays.copyOfRange(packet.getData(), 0, packet.getLength());
 		if(allReceived[0] != HELLO){return;}
-		//TODO Might be better to throw failedHandshakeException instead of just returning, 
+		//Might be better to throw failedHandshakeException instead of just returning, 
 		//also might be a good idea to loop the handshake call so that the server does not have to be restarted every time
 		g = new BigInteger(Arrays.copyOfRange(packet.getData(), 1, packet.getLength()));
 
@@ -71,7 +71,7 @@ public class Server extends AbstractClientServer{
 		if(packet.getData()[0] != INIT_DH){return;}
 		BigInteger initmsg = new BigInteger(Arrays.copyOfRange(packet.getData(), 1, packet.getLength()));
 
-		//calc DH stuff
+		//Calculate DH stuff
 		DHKeyPairGenerator gen = new DHKeyPairGenerator();
 		DHParameters DHparams = new DHParameters(p,g);
 		DHKeyGenerationParameters params = new DHKeyGenerationParameters(new SecureRandom(), DHparams);
@@ -86,7 +86,7 @@ public class Server extends AbstractClientServer{
 		BigInteger msg = dha.calculateMessage();
 
 
-		//send initial DH packet from server
+		//Send initial DH packet from server
 		temp = Utility.concatByte(INIT_DH, msg.toByteArray());
 		allSent = Utility.concatByte(allSent, temp); 
 		sendPacket = new DatagramPacket(temp, temp.length,host,port);
@@ -98,18 +98,18 @@ public class Server extends AbstractClientServer{
 		if(packet.getData()[0] != PUBLIC_KEY){return;}
 		BigInteger clientPubY = new BigInteger(Arrays.copyOfRange(packet.getData(), 1, packet.getLength()));
 
-		//calc the shared key 
+		//Calculate the shared key 
 		DHPublicKeyParameters clientPublParams = new DHPublicKeyParameters(clientPubY,DHparams);
 		BigInteger key = dha.calculateAgreement(clientPublParams, initmsg);
 		crypt.setKey(key);
 
-		//send server public y
+		//Send server public y
 		temp = Utility.concatByte(PUBLIC_KEY, publParams.getY().toByteArray());
 		allSent = Utility.concatByte(allSent, temp);
 		sendPacket = new DatagramPacket(temp,temp.length,host,port);
 		socket.send(sendPacket);
 
-		//accept clients final (handshake that is) message i.e encrypt(hash(all previous messages) + nonce)
+		//Accept clients final (handshake that is) message i.e encrypt(hash(all previous messages) + nonce)
 		socket.receive(packet);
 		byte[] finalMsg = crypt.decrypt(Arrays.copyOfRange(packet.getData(), 0, packet.getLength()));
 		if(finalMsg == null){return;}
@@ -119,7 +119,7 @@ public class Server extends AbstractClientServer{
 		if(!Arrays.equals(calcHash(allSent), messages)){return;}
 		byte[] nonce = Arrays.copyOfRange(finalMsg, finalMsg.length - 8, finalMsg.length);
 
-		//send servers final (handshake) message
+		//Send servers final (handshake) message
 		byte[] m = Utility.concatByte(calcHash(allReceived), nonce);
 		m = crypt.encrypt(m);//TODO handle null?
 		temp = m;
