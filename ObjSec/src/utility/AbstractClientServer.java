@@ -7,7 +7,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 
-public abstract class MockClientServer {
+public abstract class AbstractClientServer {
 	protected final byte HELLO = 0;
 	protected final byte INIT_DH = 1;
 	protected final byte PUBLIC_KEY = 2;

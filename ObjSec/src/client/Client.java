@@ -17,7 +17,7 @@ import org.bouncycastle.crypto.params.DHPrivateKeyParameters;
 import org.bouncycastle.crypto.params.DHPublicKeyParameters;
 
 import utility.Crypto;
-import utility.MockClientServer;
+import utility.AbstractClientServer;
 import utility.NoKeyException;
 import utility.Utility;
 
@@ -27,7 +27,7 @@ import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.net.DatagramPacket;
 
-public class Client extends MockClientServer {
+public class Client extends AbstractClientServer {
 	private final int port = 6789;
 
 	public static void main(String[] args) throws Exception {

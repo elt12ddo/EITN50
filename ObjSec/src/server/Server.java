@@ -22,10 +22,10 @@ import org.bouncycastle.crypto.params.DHPrivateKeyParameters;
 import org.bouncycastle.crypto.params.DHPublicKeyParameters;
 
 import utility.Crypto;
-import utility.MockClientServer;
+import utility.AbstractClientServer;
 import utility.Utility;
 
-public class Server extends MockClientServer{
+public class Server extends AbstractClientServer{
 	private final int port = 9877;
 
 	public static void main(String[] args){
